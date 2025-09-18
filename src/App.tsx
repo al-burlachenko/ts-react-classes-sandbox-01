@@ -1,10 +1,11 @@
-import { Component } from 'react';
+import { Component, type ErrorInfo } from 'react';
 import Container from './components/Container/Constainer';
 import ContactsForm from './components/ContactsForm/ContactsForm';
 import ContactsList from './components/ContactsList/ContactsList';
 import ContactFilter from './components/ContactFilter/ContactFilter';
 
 import type { stateType } from '@/utils/types';
+import { parse } from 'path';
 
 export default class App extends Component<
   { contacts: stateType[]; filter: string },
@@ -18,6 +19,30 @@ export default class App extends Component<
     filter: '',
   };
 
+  componentDidMount(): void {
+    const storage: stateType = JSON.parse(localStorage.getItem('contacts'));
+    console.log('component mounted', storage);
+    if (storage) this.setState({ contacts: storage });
+  }
+
+  componentDidUpdate(
+    prevProps: Readonly<{ contacts: stateType[]; filter: string }>,
+    prevState: Readonly<{}>,
+    snapshot?: any
+  ): void {
+    console.log('component updated', prevState);
+    const prevContacts = prevState.contacts;
+    const nextContacts = this.state.contacts;
+    if (prevContacts !== nextContacts) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+      console.log('local storage write in `componentDidUpdate`');
+    }
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
+    console.log('component catched error', this.state);
+  }
+
   handleSubmit = (newContact: stateType): void => {
     if (this.state.contacts.find(contact => contact.name === newContact.name)) {
       alert('name already existes in the list');
@@ -26,6 +51,7 @@ export default class App extends Component<
 
   filterChange = (filterValue: string) => {
     this.setState({ filter: filterValue });
+    localStorage.clear();
   };
 
   filterContacts = (filterValue: string): stateType[] => {
