@@ -1,0 +1,15 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 20px;
+}
+
+.label {
+  font-size: 2rem;
+}
+
+.input {
+  padding: 10px;
+  min-width: 300px;
+}
